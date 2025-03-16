@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 @org.springframework.stereotype.Repository
-public interface Repository extends JpaRepository<TravelLocation, String> {
+public interface LocationRepository extends JpaRepository<TravelLocation, String> {
     Optional<TravelLocation> findById(String id);
 }
