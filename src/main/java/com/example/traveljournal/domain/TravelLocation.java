@@ -26,7 +26,7 @@ public class TravelLocation {
     private String name;
     private String dateVisited;
     private Integer rating;
-    private String imagePath;
+    private String photoUrl;
     private String description;
 
 
