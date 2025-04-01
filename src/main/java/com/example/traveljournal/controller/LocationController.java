@@ -27,4 +27,10 @@ public class LocationController {
         List<LocationDto> locations = locationService.getAllLocations();
         return ResponseEntity.ok(locations);
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<LocationDto> updateLocation(@PathVariable("id") Long locationId, @RequestBody LocationDto updatedLocation) {
+        LocationDto savedLocation = locationService.updateLocation(locationId, updatedLocation);
+        return ResponseEntity.ok(savedLocation);
+    }
 }

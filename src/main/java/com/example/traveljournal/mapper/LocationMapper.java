@@ -10,7 +10,6 @@ public class LocationMapper {
                 locationDto.getName(),
                 locationDto.getDateVisited(),
                 locationDto.getRating(),
-                locationDto.getPhotoUrl(),
                 locationDto.getDescription()
         );
     }
@@ -21,7 +20,6 @@ public class LocationMapper {
                 location.getName(),
                 location.getDateVisited(),
                 location.getRating(),
-                location.getPhotoUrl(),
                 location.getDescription()
         );
     }

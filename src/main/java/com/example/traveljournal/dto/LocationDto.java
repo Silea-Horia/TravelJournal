@@ -14,6 +14,5 @@ public class LocationDto {
     private String name;
     private String dateVisited;
     private Integer rating;
-    private String photoUrl;
     private String description;
 }
