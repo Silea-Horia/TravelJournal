@@ -25,12 +25,21 @@ public class LocationController {
     @GetMapping
     public ResponseEntity<List<LocationDto>> getAllLocations() {
         List<LocationDto> locations = locationService.getAllLocations();
+
         return ResponseEntity.ok(locations);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<LocationDto> updateLocation(@PathVariable("id") Long locationId, @RequestBody LocationDto updatedLocation) {
         LocationDto savedLocation = locationService.updateLocation(locationId, updatedLocation);
+
         return ResponseEntity.ok(savedLocation);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<LocationDto> deleteLocation(@PathVariable("id") Long locationId) {
+        LocationDto deletedLocation = locationService.deleteLocation(locationId);
+
+        return ResponseEntity.ok(deletedLocation);
     }
 }
