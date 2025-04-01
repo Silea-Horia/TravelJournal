@@ -2,12 +2,17 @@ package com.example.traveljournal.controller;
 
 import com.example.traveljournal.dto.LocationDto;
 import com.example.traveljournal.service.LocationService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @AllArgsConstructor
@@ -17,7 +22,7 @@ public class LocationController {
     private LocationService locationService;
 
     @PostMapping
-    public ResponseEntity<LocationDto> createLocation(@RequestBody LocationDto locationDto) {
+    public ResponseEntity<LocationDto> createLocation(@Valid @RequestBody LocationDto locationDto) {
         LocationDto savedLocation = locationService.createLocation(locationDto);
 
         return new ResponseEntity<>(savedLocation, HttpStatus.CREATED);
@@ -37,7 +42,7 @@ public class LocationController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<LocationDto> updateLocation(@PathVariable("id") Long locationId, @RequestBody LocationDto updatedLocation) {
+    public ResponseEntity<LocationDto> updateLocation(@PathVariable("id") Long locationId, @Valid @RequestBody LocationDto updatedLocation) {
         LocationDto savedLocation = locationService.updateLocation(locationId, updatedLocation);
 
         return ResponseEntity.ok(savedLocation);
@@ -48,5 +53,14 @@ public class LocationController {
         LocationDto deletedLocation = locationService.deleteLocation(locationId);
 
         return ResponseEntity.ok(deletedLocation);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }
