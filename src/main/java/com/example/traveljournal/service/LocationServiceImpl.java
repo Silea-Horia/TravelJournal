@@ -35,7 +35,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDto updateLocation(Long locationId, LocationDto updatedLocation) {
-        Location location = getLocationById(locationId);
+        Location location = LocationMapper.mapToLocation(getLocationById(locationId));
 
         location.setName(updatedLocation.getName());
         location.setDescription(updatedLocation.getDescription());
@@ -47,16 +47,18 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDto deleteLocation(Long locationId) {
-        Location location = getLocationById(locationId);
+        Location location = LocationMapper.mapToLocation(getLocationById(locationId));
 
         locationRepository.delete(location);
 
         return LocationMapper.mapToLocationDto(location);
     }
 
-    private Location getLocationById(Long locationId) {
-        return locationRepository.findById(locationId).orElseThrow(
+    @Override
+    public LocationDto getLocationById(Long locationId) {
+        Location location = locationRepository.findById(locationId).orElseThrow(
                 () -> new ResourceNotFoundException("The location with the id " + locationId + " doesn't exist")
         );
+        return LocationMapper.mapToLocationDto(location);
     }
 }

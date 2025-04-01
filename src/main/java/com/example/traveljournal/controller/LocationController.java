@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/locations")
@@ -27,6 +28,12 @@ public class LocationController {
         List<LocationDto> locations = locationService.getAllLocations();
 
         return ResponseEntity.ok(locations);
+    }
+
+    @GetMapping("{id}") // Add this endpoint
+    public ResponseEntity<LocationDto> getLocationById(@PathVariable("id") Long locationId) {
+        LocationDto location = locationService.getLocationById(locationId);
+        return ResponseEntity.ok(location);
     }
 
     @PutMapping("{id}")
