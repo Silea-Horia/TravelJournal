@@ -12,9 +12,4 @@ public class TravelJournalApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TravelJournalApplication.class, args);
 	}
-
-	@GetMapping
-	public String fun(){
-		return "supi";
-	}
 }
