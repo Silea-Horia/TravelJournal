@@ -6,7 +6,7 @@ import com.example.traveljournal.exception.ResourceNotFoundException;
 import com.example.traveljournal.mapper.LocationMapper;
 import com.example.traveljournal.repository.LocationRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,30 +26,27 @@ public class LocationServiceImpl implements LocationService {
         return LocationMapper.mapToLocationDto(savedLocation);
     }
 
-    private Pageable createPageRequestUsing(int page, int size) {
-        return PageRequest.of(page, size);
-    }
-
     @Override
-    public Page<LocationDto> getPage(Integer page, Integer size, String name, List<Integer> ratings) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "rating"));
+    public List<LocationDto> getAllLocations(String name, List<Integer> ratings) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "rating");
 
-        Page<Location> locationPage;
-        if ((name == null || name.isEmpty()) && (ratings == null || ratings.isEmpty())) {
-            // No filters, just paginate all
-            locationPage = locationRepository.findAll(pageable);
-        } else {
-            // Apply filters using repository query methods or Specifications
-            if (name != null && !name.isEmpty() && ratings != null && !ratings.isEmpty()) {
-                locationPage = locationRepository.findByNameContainingIgnoreCaseAndRatingIn(name, ratings, pageable);
-            } else if (name != null && !name.isEmpty()) {
-                locationPage = locationRepository.findByNameContainingIgnoreCase(name, pageable);
-            } else {
-                locationPage = locationRepository.findByRatingIn(ratings, pageable);
-            }
+        List<Location> locations = locationRepository.findAll(sort);
+
+        if (name != null && !name.isEmpty()) {
+            locations = locations.stream()
+                    .filter(location -> location.getName().toLowerCase().contains(name.toLowerCase()))
+                    .toList();
         }
 
-        return locationPage.map(LocationMapper::mapToLocationDto);
+        if (ratings != null && !ratings.isEmpty()) {
+            locations = locations.stream()
+                    .filter(location -> ratings.contains(location.getRating()))
+                    .toList();
+        }
+
+        return locations.stream()
+                .map(LocationMapper::mapToLocationDto)
+                .collect(Collectors.toList());
     }
 
     @Override
