@@ -59,7 +59,7 @@ class LocationServiceImplTest {
         );
         when(locationRepository.findAll(Sort.by(Sort.Direction.DESC, "rating"))).thenReturn(locations);
 
-        List<LocationDto> result = locationService.getAllLocations(null, null);
+        List<LocationDto> result = (List<LocationDto>) locationService.getPage(null, null, null,  null);
 
         assertEquals(2, result.size());
         assertEquals(5, result.get(0).getRating());
@@ -77,7 +77,7 @@ class LocationServiceImplTest {
         );
         when(locationRepository.findAll(Sort.by(Sort.Direction.DESC, "rating"))).thenReturn(locations);
 
-        List<LocationDto> result = locationService.getAllLocations("par", null);
+        List<LocationDto> result = (List<LocationDto>) locationService.getPage( null, null, "par", null);
 
         assertEquals(1, result.size());
         assertEquals("Paris", result.getFirst().getName());
@@ -92,7 +92,7 @@ class LocationServiceImplTest {
         );
         when(locationRepository.findAll(Sort.by(Sort.Direction.DESC, "rating"))).thenReturn(locations);
 
-        List<LocationDto> result = locationService.getAllLocations(null, List.of(4));
+        List<LocationDto> result = (List<LocationDto>) locationService.getPage(null, null, null, List.of(4));
 
         assertEquals(1, result.size());
         assertEquals(4, result.getFirst().getRating());

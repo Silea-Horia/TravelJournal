@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -66,7 +67,7 @@ class LocationControllerTest {
                 new LocationDto(2L, "London", "2023-06-15", 5, "Great city"),
                 new LocationDto(1L, "Paris", "2023-05-10", 4, "A beautiful city")
         );
-        when(locationService.getAllLocations(null, null)).thenReturn(locations);
+        when(locationService.getPage(null, null, null, null)).thenReturn((Page<LocationDto>) locations);
 
         String result = mockMvc.perform(get("/api/locations"))
                 .andExpect(status().isOk())
@@ -78,7 +79,7 @@ class LocationControllerTest {
         assertEquals("London", responseList.get(0).getName());
         assertEquals(4, responseList.get(1).getRating());
         assertEquals("Paris", responseList.get(1).getName());
-        verify(locationService, times(1)).getAllLocations(null, null);
+        verify(locationService, times(1)).getPage(null, null, null, null);
     }
 
     @Test
@@ -86,7 +87,7 @@ class LocationControllerTest {
         List<LocationDto> locations = Arrays.asList(
                 new LocationDto(1L, "Paris", "2023-05-10", 4, "A beautiful city")
         );
-        when(locationService.getAllLocations("par", null)).thenReturn(locations);
+        when(locationService.getPage(null, null, "par", null)).thenReturn((Page<LocationDto>) locations);
 
         String result = mockMvc.perform(get("/api/locations")
                         .param("name", "par"))
@@ -96,7 +97,7 @@ class LocationControllerTest {
         List<LocationDto> responseList = Arrays.asList(objectMapper.readValue(result, LocationDto[].class));
         assertEquals(1, responseList.size());
         assertEquals("Paris", responseList.get(0).getName());
-        verify(locationService, times(1)).getAllLocations("par", null);
+        verify(locationService, times(1)).getPage(null, null, "par", null);
     }
 
     @Test
@@ -104,7 +105,7 @@ class LocationControllerTest {
         List<LocationDto> locations = Arrays.asList(
                 new LocationDto(1L, "Paris", "2023-05-10", 4, "A beautiful city")
         );
-        when(locationService.getAllLocations(null, List.of(4))).thenReturn(locations);
+        when(locationService.getPage(null, null, null, List.of(4))).thenReturn((Page<LocationDto>) locations);
 
         String result = mockMvc.perform(get("/api/locations")
                         .param("ratings", "4"))
@@ -115,7 +116,7 @@ class LocationControllerTest {
         assertEquals(1, responseList.size());
         assertEquals(4, responseList.get(0).getRating());
         assertEquals("Paris", responseList.get(0).getName());
-        verify(locationService, times(1)).getAllLocations(null, List.of(4));
+        verify(locationService, times(1)).getPage(null, null, null, List.of(4));
     }
 
     @Test
