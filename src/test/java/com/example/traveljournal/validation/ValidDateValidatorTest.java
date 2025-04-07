@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ValidDateValidatorTest {
+public class ValidDateValidatorTest {
 
     private ValidDateValidator validator;
 

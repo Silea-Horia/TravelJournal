@@ -1,6 +1,7 @@
 package com.example.traveljournal.controller;
 
 import com.example.traveljournal.dto.LocationDto;
+import com.example.traveljournal.exception.ResourceNotFoundException;
 import com.example.traveljournal.service.LocationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -23,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class LocationControllerTest {
+public class LocationControllerTest {
 
     @Mock
     private LocationService locationService;
@@ -37,11 +39,12 @@ class LocationControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Initialize MockMvc with the controller
         mockMvc = MockMvcBuilders.standaloneSetup(locationController).build();
         objectMapper = new ObjectMapper();
         locationDto = new LocationDto(1L, "Paris", "2023-05-10", 4, "A beautiful city");
     }
+
+    // Existing Happy Path Tests
 
     @Test
     void createLocation_Success() throws Exception {
@@ -162,5 +165,58 @@ class LocationControllerTest {
         assertNotNull(responseDto);
         assertEquals("Paris", responseDto.getName());
         verify(locationService, times(1)).deleteLocation(1L);
+    }
+
+    // New Tests for Full Coverage
+
+    @Test
+    void createLocation_ValidationFailure() throws Exception {
+        // Create an invalid LocationDto with null name (assuming @NotNull on name in LocationDto)
+        LocationDto invalidDto = new LocationDto(1L, null, "2023-05-10", 4, "A beautiful city");
+
+        String result = mockMvc.perform(post("/api/locations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+
+        // Verify the response contains the validation error
+        assertTrue(result.contains("name")); // Check if "name" field is in the error response
+        verify(locationService, never()).createLocation(any(LocationDto.class));
+    }
+
+    @Test
+    void updateLocation_ValidationFailure() throws Exception {
+        // Invalid DTO with null name
+        LocationDto invalidDto = new LocationDto(1L, null, "2023-05-10", 4, "A beautiful city");
+
+        String result = mockMvc.perform(put("/api/locations/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+
+        assertTrue(result.contains("name"));
+        verify(locationService, never()).updateLocation(anyLong(), any(LocationDto.class));
+    }
+
+    @Test
+    void getAllLocations_WithBothFilters_Success() throws Exception {
+        List<LocationDto> locations = Arrays.asList(
+                new LocationDto(1L, "Paris", "2023-05-10", 4, "A beautiful city")
+        );
+        when(locationService.getAllLocations("par", List.of(4))).thenReturn(locations);
+
+        String result = mockMvc.perform(get("/api/locations")
+                        .param("name", "par")
+                        .param("ratings", "4"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        List<LocationDto> responseList = Arrays.asList(objectMapper.readValue(result, LocationDto[].class));
+        assertEquals(1, responseList.size());
+        assertEquals("Paris", responseList.get(0).getName());
+        assertEquals(4, responseList.get(0).getRating());
+        verify(locationService, times(1)).getAllLocations("par", List.of(4));
     }
 }
