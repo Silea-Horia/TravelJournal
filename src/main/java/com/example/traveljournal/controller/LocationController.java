@@ -29,13 +29,21 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LocationDto>> getAllLocations(@RequestParam(required = false) String name, @RequestParam(required = false) List<Integer> ratings) {
-        List<LocationDto> locations = locationService.getAllLocations(name, ratings);
+    public ResponseEntity<List<LocationDto>> getAllLocations(@RequestParam(required = false) String name, @RequestParam(required = false) List<Integer> ratings, @RequestParam(required = false) Integer page) {
+        if (page == null) {
+            List<LocationDto> locations = locationService.getAllLocations(name, ratings);
+
+            return ResponseEntity.ok(locations);
+        }
+
+        Integer pageIndex = page - 1;
+        Integer itemsPerPage = 10;
+        List<LocationDto> locations = locationService.getAllLocations(name, ratings).subList(itemsPerPage * pageIndex, itemsPerPage * pageIndex + itemsPerPage);
 
         return ResponseEntity.ok(locations);
     }
 
-    @GetMapping("{id}") // Add this endpoint
+    @GetMapping("{id}")
     public ResponseEntity<LocationDto> getLocationById(@PathVariable("id") Long locationId) {
         LocationDto location = locationService.getLocationById(locationId);
         return ResponseEntity.ok(location);
