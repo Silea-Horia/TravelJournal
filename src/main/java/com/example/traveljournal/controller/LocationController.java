@@ -32,13 +32,15 @@ public class LocationController {
     public ResponseEntity<List<LocationDto>> getAllLocations(@RequestParam(required = false) String name, @RequestParam(required = false) List<Integer> ratings, @RequestParam(required = false) Integer page) {
         if (page == null) {
             List<LocationDto> locations = locationService.getAllLocations(name, ratings);
-
             return ResponseEntity.ok(locations);
         }
 
         Integer pageIndex = page - 1;
         Integer itemsPerPage = 10;
-        List<LocationDto> locations = locationService.getAllLocations(name, ratings).subList(itemsPerPage * pageIndex, itemsPerPage * pageIndex + itemsPerPage);
+        List<LocationDto> allLocations = locationService.getAllLocations(name, ratings);
+        int start = Math.min(itemsPerPage * pageIndex, allLocations.size());
+        int end = Math.min(start + itemsPerPage, allLocations.size());
+        List<LocationDto> locations = allLocations.subList(start, end);
 
         return ResponseEntity.ok(locations);
     }
