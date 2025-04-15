@@ -6,6 +6,8 @@ import com.example.traveljournal.exception.ResourceNotFoundException;
 import com.example.traveljournal.mapper.LocationMapper;
 import com.example.traveljournal.repository.LocationRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -27,26 +29,16 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public List<LocationDto> getAllLocations(String name, List<Integer> ratings) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "rating");
-
-        List<Location> locations = locationRepository.findAll(sort);
-
-        if (name != null && !name.isEmpty()) {
-            locations = locations.stream()
-                    .filter(location -> location.getName().toLowerCase().contains(name.toLowerCase()))
-                    .toList();
+    public Page<LocationDto> getAllLocations(String name, List<Integer> ratings, Pageable pageable) {
+        if (name == null) {
+            name = "";
         }
-
-        if (ratings != null && !ratings.isEmpty()) {
-            locations = locations.stream()
-                    .filter(location -> ratings.contains(location.getRating()))
-                    .toList();
+        if (ratings == null || ratings.isEmpty()) {
+            return locationRepository.findByNameContainingIgnoreCase(name, pageable)
+                    .map(LocationMapper::mapToLocationDto);
         }
-
-        return locations.stream()
-                .map(LocationMapper::mapToLocationDto)
-                .collect(Collectors.toList());
+        return locationRepository.findByNameContainingIgnoreCaseAndRatingIn(name, ratings, pageable)
+                .map(LocationMapper::mapToLocationDto);
     }
 
     @Override

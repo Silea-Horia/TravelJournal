@@ -4,6 +4,10 @@ import com.example.traveljournal.dto.LocationDto;
 import com.example.traveljournal.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -21,6 +25,11 @@ import java.util.Map;
 public class LocationController {
     private LocationService locationService;
 
+    @GetMapping("/health")
+    public ResponseEntity<String> checkHealth() {
+        return ResponseEntity.ok("OK");
+    }
+
     @PostMapping
     public ResponseEntity<LocationDto> createLocation(@Valid @RequestBody LocationDto locationDto) {
         LocationDto savedLocation = locationService.createLocation(locationDto);
@@ -29,19 +38,12 @@ public class LocationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LocationDto>> getAllLocations(@RequestParam(required = false) String name, @RequestParam(required = false) List<Integer> ratings, @RequestParam(required = false) Integer page) {
-        if (page == null) {
-            List<LocationDto> locations = locationService.getAllLocations(name, ratings);
-            return ResponseEntity.ok(locations);
-        }
-
-        Integer pageIndex = page - 1;
-        Integer itemsPerPage = 10;
-        List<LocationDto> allLocations = locationService.getAllLocations(name, ratings);
-        int start = Math.min(itemsPerPage * pageIndex, allLocations.size());
-        int end = Math.min(start + itemsPerPage, allLocations.size());
-        List<LocationDto> locations = allLocations.subList(start, end);
-
+    public ResponseEntity<Page<LocationDto>> getAllLocations(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) List<Integer> ratings,
+            @RequestParam(defaultValue = "0") int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "rating"));
+        Page<LocationDto> locations = locationService.getAllLocations(name, ratings, pageable);
         return ResponseEntity.ok(locations);
     }
 
