@@ -10,7 +10,8 @@ public class LocationMapper {
                 locationDto.getName(),
                 locationDto.getDateVisited(),
                 locationDto.getRating(),
-                locationDto.getDescription()
+                locationDto.getDescription(),
+                locationDto.getCountryId()
         );
     }
 
@@ -20,7 +21,8 @@ public class LocationMapper {
                 location.getName(),
                 location.getDateVisited(),
                 location.getRating(),
-                location.getDescription()
+                location.getDescription(),
+                location.getCountryId()
         );
     }
 }

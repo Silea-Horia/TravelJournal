@@ -23,4 +23,5 @@ public class Location {
     private String dateVisited;
     private Integer rating;
     private String description;
+    private Integer countryId;
 }

@@ -28,4 +28,6 @@ public class LocationDto {
     private Integer rating;
 
     private String description;
+
+    private Integer countryId;
 }
